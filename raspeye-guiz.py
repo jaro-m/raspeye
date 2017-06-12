@@ -2,33 +2,6 @@ from guizero import *
 import sys, socket, struct, json, time, threading
 import constants, raspeye_preview
 
-#import PIL.Image
-#import PIL.ImageTk
-
-def help_port1():
-    info('The address', 'The addres field can contain only the address of your server (you have to find out what address it is).')
-def help_port2():
-    info('Port', 'The port field should contain the number, the port used by the server (you set it up starting the server)')
-def help_tl1():
-    info("Number of pictures", "The time lapse is just a process of taking pictures (for example up to 120 pictures)\
-     every given period of time (for example 300 seconds)")
-def help_tl2():
-    info("The frequency of taking pictures", "The most interesting is watching the pictures converted to a video \
-    when frames of video made up of the pictures change a lot quicker then the pictures were taken")
-
-def checkout():
-    #global cam_opt
-    try:
-        cam_opt = receive_opts()
-    except AttributrError as err:
-        tb1.set(err)
-        return
-    co_msg = ''
-    for itm in cam_opt.items():
-        co_msg += str(itm)
-        co_msg += '\n'
-    tb1.set(co_msg)
-    return
 
 def send_cmd(actionNo):
     my_server = address_tbox.get()
@@ -115,7 +88,7 @@ def receive_opts():
                 data_toread -= len(datain)
             data_temp += datain
         except socket.timeout as err:
-            #print("CAM_OPT hasn't been received. Socket error:", err) 
+            #print("CAM_OPT hasn't been received. Socket error:", err)
             return
     cam_opt_s = str(data_temp)[2:-1]
     cam_opt_tmp = json.loads(cam_opt_s)
@@ -134,6 +107,36 @@ def receive_opts():
         pr_combo.set('Preview is OFF')
     return cam_opt_tmp
 
+
+'''
+    GUI part...
+'''
+
+def help_port1():
+    info('The address', 'The addres field can contain only the address of your server (you have to find out what address it is).')
+def help_port2():
+    info('Port', 'The port field should contain the number, the port used by the server (you set it up starting the server)')
+def help_tl1():
+    info("Number of pictures", "The time lapse is just a process of taking pictures (for example up to 120 pictures)\
+     every given period of time (for example 300 seconds)")
+def help_tl2():
+    info("The frequency of taking pictures", "The most interesting is watching the pictures converted to a video \
+    when frames of video made up of the pictures change a lot quicker then the pictures were taken")
+
+def checkout():
+    #global cam_opt
+    try:
+        cam_opt = receive_opts()
+    except AttributrError as err:
+        tb1.set(err)
+        return
+    co_msg = ''
+    for itm in cam_opt.items():
+        co_msg += str(itm)
+        co_msg += '\n'
+    tb1.set(co_msg)
+    return
+
 def tl_func(nm):
     #global cam_opt
     camopts = {}
@@ -151,7 +154,7 @@ def tl_func(nm):
         send_opts(camopts)
         return
 
-def md_func(nm):
+def md_func(nm): # not tested yet
     send_cmd(10)
 
     time.sleep(1)
@@ -178,10 +181,7 @@ def pr_func(nm):
     return
 
 
-
-
 # Window setup
-cam_opt = constants.CAM_OPT_DEFAULTS
 address_box_text = "for example: 192.168.0.1" # ;)
 port_box_text = "for example: 19876"
 
@@ -218,11 +218,13 @@ pr_combo = Combo(action_box, options=["Preview is OFF", "Preview is ON"], comman
 md_combo = Combo(action_box, options=["Motion detection is OFF", "Motion detection is ON"], command=md_func, grid=[0, 2])
 
 tb_box = Box(app, layout="grid")
-#tb0 = TextBox(tb_box)
+#tb0 = TextBox(tb_box) # just testing
 tb1 = Text(app, text="", size="8", color="blue", font="Helvetica", align="left")
 #tb2 = TextBox(tb_box)
 
-#my_waffle = Waffle(app, height=5, width=5, dim=15, pad=0, color="yellow", dotty=False, remember=False, grid=None, align=None)
+# seting up some initial values
+cam_opt = constants.CAM_OPT_DEFAULTS
+
 # render app window
 app.display()
 print('Be well!')
