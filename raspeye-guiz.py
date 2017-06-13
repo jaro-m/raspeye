@@ -4,6 +4,9 @@ import constants, raspeye_preview
 
 
 def send_cmd(actionNo):
+    '''opens a connection (socket) and sends a COMMAND (number) to the server.
+        input: int (command/number)
+    '''
     my_server = address_tbox.get()
     my_port = port_tbox.get()
     conn = socket.socket()
@@ -20,6 +23,9 @@ def send_cmd(actionNo):
     return
 
 def send_opts(camopts):
+    '''connects to the server and sends OPTIONS in a json file.
+        input: dictionary
+    '''
     global cam_opt
     my_server = address_tbox.get()
     my_port = port_tbox.get()
@@ -56,6 +62,11 @@ def send_opts(camopts):
     conn.close()
 
 def receive_opts():
+    '''connects to the server and receives options/settings from it.
+        Changes state of combo buttons according to received data.
+        No input
+        output: dictionary
+    '''
     #global cam_opt
     my_server = address_tbox.get()
     my_port = port_tbox.get()
