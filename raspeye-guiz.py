@@ -124,15 +124,19 @@ def receive_opts():
 '''
 
 def help_port1():
-    info('The address', 'The addres field can contain only the address of your server (you have to find out what address it is).')
+    info('The address',
+        'The addres field can contain only the address of your server (you have to find out what address it is).')
 def help_port2():
-    info('Port', 'The port field should contain the number, the port used by the server (you set it up starting the server)')
+    info('Port',
+        'The port field should contain the number, the port used by the server (you set it up starting the server)')
 def help_tl1():
-    info("Number of pictures", "The time lapse is just a process of taking pictures (for example up to 120 pictures)\
-     every given period of time (for example 300 seconds)")
+    info("Number of pictures",
+        "The time lapse is just a process of taking pictures (for example up to 120 pictures)\
+        every given period of time (for example 300 seconds)")
 def help_tl2():
-    info("The frequency of taking pictures", "The most interesting is watching the pictures converted to a video \
-    when frames of video made up of the pictures change a lot quicker then the pictures were taken")
+    info("The frequency of taking pictures",
+        "The most interesting is watching the pictures converted to a video \
+        when frames of video made up of the pictures change a lot quicker then the pictures were taken")
 
 def checkout():
     #global cam_opt
@@ -201,36 +205,128 @@ app = App(layout='auto', width='480', height='640', title="Raspeye client")
 mytitle = Text(app, text="RaspEye", size=24, color="red", font="Helvetica", grid=[0, 0], align="top")
 
 conn_box = Box(app, layout="grid")
-myaddress = Text(conn_box, text="Type in the address of your Raspeye server", size=8, color="blue", font="Helvetica", grid=[0, 0], align="bottom")
-address_tbox = TextBox(conn_box, text=address_box_text, width=40, grid=[1, 0], align="left")
-myport = Text(conn_box, text="Type in the port used by your Raspeye server", size=8, color="blue", font="Helvetica", grid=[3, 0], align="bottom")
-port_tbox = TextBox(conn_box, text=port_box_text, width=40, grid=[4, 0], align="left")
-helppb1 = PushButton(conn_box, text="   ?   ", command=help_port1, padx=1, pady=1, grid=[1, 1])
-helppb2 = PushButton(conn_box, text="   ?   ", command=help_port2, padx=1, pady=1, grid=[4, 1])
-conn_button = PushButton(app, text="Check out", command=checkout, padx=1, pady=1)
+myaddress = Text(conn_box,
+                text="Type in the address of your Raspeye server",
+                size=8,
+                color="blue",
+                font="Helvetica",
+                grid=[0, 0],
+                align="bottom")
 
-spacer1 = Text(app, text=" ", size=14)
+address_tbox = TextBox(conn_box,
+                text=address_box_text,
+                width=40,
+                grid=[1, 0],
+                align="left")
+
+myport = Text(conn_box,
+                text="Type in the port used by your Raspeye server",
+                size=8,
+                color="blue",
+                font="Helvetica",
+                grid=[3, 0],
+                align="bottom")
+
+port_tbox = TextBox(conn_box,
+                text=port_box_text,
+                width=40,
+                grid=[4, 0],
+                align="left")
+
+helppb1 = PushButton(conn_box,
+                text="   ?   ",
+                command=help_port1,
+                padx=1,
+                pady=1,
+                grid=[1, 1])
+
+helppb2 = PushButton(conn_box,
+                text="   ?   ",
+                command=help_port2,
+                padx=1,
+                pady=1,
+                grid=[4, 1])
+
+conn_button = PushButton(app,
+                text="Check/Connect",
+                command=checkout,
+                padx=1,
+                pady=1)
+
+spacer1 = Text(app,
+                text=" ",
+                size=14)
 
 tl_box = Box(app, layout="grid")
-tl_nop_txt = Text(tl_box, text="Type in the number of pictures you want to take", size=8, color="blue", font="Helvetica", grid=[0, 0], align="bottom")
-tl_nop_tb = TextBox(tl_box, text="for example: 120", width=40, grid=[1, 0], align="left")
-tl_delay_txt = Text(tl_box, text="Type in the time (in seconds) between pictures", size=8, color="blue", font="Helvetica", grid=[3, 0], align="bottom")
-tl_delay_tb = TextBox(tl_box, text="for example: 300", width=40, grid=[4, 0], align="left")
-helppb3 = PushButton(tl_box, text="   ?   ", command=help_tl1, padx=1, pady=1, grid=[1, 1])
-helppb4 = PushButton(tl_box, text="   ?   ", command=help_tl2, padx=1, pady=1, grid=[4, 1])
 
-tl_combo = Combo(app, options=["Time lapse is OFF", "Time lapse is ON"], command=tl_func)
+tl_nop_txt = Text(tl_box,
+                text="Type in the number of pictures you want to take",
+                size=8, color="blue",
+                font="Helvetica",
+                grid=[0, 0],
+                align="bottom")
+
+tl_nop_tb = TextBox(tl_box,
+                text="for example: 120",
+                width=40,
+                grid=[1, 0],
+                align="left")
+
+tl_delay_txt = Text(tl_box,
+                text="Type in the time (in seconds) between pictures",
+                size=8,
+                color="blue",
+                font="Helvetica",
+                grid=[3, 0],
+                align="bottom")
+
+tl_delay_tb = TextBox(tl_box,
+                text="for example: 300",
+                width=40,
+                grid=[4, 0],
+                align="left")
+
+helppb3 = PushButton(tl_box,
+                text="   ?   ",
+                command=help_tl1,
+                padx=1,
+                pady=1,
+                grid=[1, 1])
+
+helppb4 = PushButton(tl_box,
+                text="   ?   ",
+                command=help_tl2,
+                padx=1,
+                pady=1,
+                grid=[4, 1])
+
+tl_combo = Combo(app,
+                options=["Time lapse is OFF", "Time lapse is ON"],
+                command=tl_func)
 
 spacer1 = Text(app, text=" ", size=14)
 
 action_box = Box(app, layout="grid")
 
-pr_combo = Combo(action_box, options=["Preview is OFF", "Preview is ON"], command=pr_func, grid=[0, 1])
-md_combo = Combo(action_box, options=["Motion detection is OFF", "Motion detection is ON"], command=md_func, grid=[0, 2])
+pr_combo = Combo(action_box,
+                options=["Preview is OFF", "Preview is ON"],
+                command=pr_func,
+                grid=[0, 1])
+
+md_combo = Combo(action_box,
+                options=["Motion detection is OFF", "Motion detection is ON"],
+                command=md_func,
+                grid=[0, 2])
 
 tb_box = Box(app, layout="grid")
 #tb0 = TextBox(tb_box) # just testing
-tb1 = Text(app, text="", size="8", color="blue", font="Helvetica", align="left")
+tb1 = Text(app,
+            text="",
+            size="8",
+            color="blue",
+            font="Helvetica",
+            align="left")
+
 #tb2 = TextBox(tb_box)
 
 # seting up some initial values
