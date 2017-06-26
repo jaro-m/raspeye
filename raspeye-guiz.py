@@ -1,5 +1,5 @@
 from guizero import *
-import sys, socket, struct, json, time, threading
+import sys, socket, struct, json, time, threading, datetime
 import constants, raspeye_preview
 
 
@@ -71,7 +71,11 @@ def receive_opts():
     my_server = address_tbox.get()
     my_port = port_tbox.get()
     conn = socket.socket()
-    conn.connect((my_server, int(my_port)))
+    try:
+        conn.connect((my_server, int(my_port)))
+    except ConnectionRefusedError as err:
+        tb1.set("Connection Refused!")
+        return
     conn.settimeout(3)#None
     try:
         if conn.sendall(struct.pack('<L', 50)) != None:
@@ -138,14 +142,22 @@ def help_tl2():
         "The most interesting is watching the pictures converted to a video \
         when frames of video made up of the pictures change a lot quicker then the pictures were taken")
 
+def help_tl3():
+    info("Setting up the date and time for the time lapse to start",
+        "At the moment the format of date and time has to be provided in the following format:\n\
+        DD/MM/YYY HH:MM\n and the time hass to point to future")
+
 def checkout():
     #global cam_opt
     try:
         cam_opt = receive_opts()
-    except AttributrError as err:
+    except AttributeError as err:
         tb1.set(err)
         return
     co_msg = ''
+    if len(cam_opt) < 1:
+        print("An error occurred")
+        return
     for itm in cam_opt.items():
         co_msg += str(itm)
         co_msg += '\n'
@@ -153,11 +165,51 @@ def checkout():
     return
 
 def tl_func(nm):
-    #global cam_opt
+    '''deals with the time lapse
+    '''
+
+    def validate_time(timestr):
+        if len(timestr) < 9:
+            return 0
+        #try:
+        date0, time0 = timestr.split(' ')
+        #print("date:", date0, "time:", time0)
+        if '/' in date0:
+            day0, month0, year0 = date0.split('/')
+        elif '-' in date0:
+            day0, month0, year0 = date0.split('-')
+        else:
+            print("date is not correct", date0, time0)
+            return 0
+        hour0, minute0 = time0.split(':')
+        #print("printing values:", year0, month0, day0, hour0, minute0)
+        year0 = int(year0)
+        month0 = int(month0)
+        day0 = int(day0)
+        hour0 = int(hour0)
+        minute0 = int(minute0)
+        thetime0 = (year0, month0, day0, hour0, minute0)
+        #print("printing as ints:", thetime0)
+        thetime = datetime.datetime(thetime0[0], thetime0[1], thetime0[2], thetime0[3], thetime0[4])
+        # except:
+        #     print("date/time conversion failure")
+        #     return 0
+        # else:
+        if thetime > datetime.datetime.today():
+            return 1
+        else:
+            print("Time cannot be set in the past")
+            return 0
+
     camopts = {}
     if nm == 'Time lapse is ON':
         camopts['tl_nop'] = int(tl_nop_tb.get())
         camopts['tl_delay'] = int(tl_delay_tb.get())
+        if validate_time(tl_time_tb.get()):
+            print("time's correct")
+            camopts['tl_starts'] = tl_time_tb.get()
+        else:
+            print("time's NOT! correct")
         send_opts(camopts)
         send_cmd(20)
 
@@ -197,8 +249,8 @@ def pr_func(nm):
 
 
 # Window setup
-address_box_text = "for example: 192.168.0.1" # ;)
-port_box_text = "for example: 19876"
+address_box_text = "192.168.1.30" # ;)
+port_box_text = "19876"
 
 app = App(layout='auto', width='480', height='640', title="Raspeye client")
 
@@ -286,6 +338,20 @@ tl_delay_tb = TextBox(tl_box,
                 grid=[4, 0],
                 align="left")
 
+tl_time_txt = Text(tl_box,
+                text="The date and time in the forn: DD/MM/YYYY HH:MM",
+                size=8,
+                color="blue",
+                font="Helvetica",
+                grid=[5, 0],
+                align="bottom")
+
+tl_time_tb = TextBox(tl_box,
+                text="for example: 31/12/2017 23:59",
+                width=40,
+                grid=[6, 0],
+                align="left")
+
 helppb3 = PushButton(tl_box,
                 text="   ?   ",
                 command=help_tl1,
@@ -299,6 +365,13 @@ helppb4 = PushButton(tl_box,
                 padx=1,
                 pady=1,
                 grid=[4, 1])
+
+helppb5 = PushButton(tl_box,
+                text="   ?   ",
+                command=help_tl3,
+                padx=1,
+                pady=1,
+                grid=[6, 1])
 
 tl_combo = Combo(app,
                 options=["Time lapse is OFF", "Time lapse is ON"],
