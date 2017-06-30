@@ -155,7 +155,7 @@ def checkout():
         tb1.set(err)
         return
     co_msg = ''
-    if len(cam_opt) < 1:
+    if type(cam_opt) != type({}):
         print("An error occurred")
         return
     for itm in cam_opt.items():
