@@ -249,10 +249,11 @@ def pr_func(nm):
 
 
 # Window setup
-address_box_text = "192.168.1.30" # ;)
+address_box_text = "192.168.1.10" # ;)
 port_box_text = "19876"
+time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
 
-app = App(layout='auto', width='480', height='640', title="Raspeye client")
+app = App(layout='auto', width='480', height='672', title="Raspeye client")
 
 mytitle = Text(app, text="RaspEye", size=24, color="red", font="Helvetica", grid=[0, 0], align="top")
 
@@ -347,7 +348,7 @@ tl_time_txt = Text(tl_box,
                 align="bottom")
 
 tl_time_tb = TextBox(tl_box,
-                text="for example: 31/12/2017 23:59",
+                text=time_now,
                 width=40,
                 grid=[6, 0],
                 align="left")
