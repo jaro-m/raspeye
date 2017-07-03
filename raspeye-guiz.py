@@ -156,7 +156,7 @@ def checkout():
         return
     co_msg = ''
     if type(cam_opt) != type({}):
-        print("An error occurred")
+        print("<checkout> function: An error occurred")
         return
     for itm in cam_opt.items():
         co_msg += str(itm)
@@ -165,6 +165,7 @@ def checkout():
     return
 
 def tl_func(nm):
+
     '''deals with the time lapse
     '''
 
@@ -220,6 +221,12 @@ def tl_func(nm):
         camopts['tl_exit'] = 1
         send_opts(camopts)
         return
+def tl_start():
+    pass
+def tl_set_time():
+    pass
+def tl_stop():
+    pass
 
 def md_func(nm): # not tested yet
     send_cmd(10)
@@ -249,11 +256,11 @@ def pr_func(nm):
 
 
 # Window setup
-address_box_text = "192.168.1.10" # ;)
-port_box_text = "19876"
+address_box_text = "192.168.0.26" # ;)
+port_box_text = "18767"
 time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
 
-app = App(layout='auto', width='480', height='672', title="Raspeye client")
+app = App(layout='auto', width='480', height='680', title="Raspeye client")
 
 mytitle = Text(app, text="RaspEye", size=24, color="red", font="Helvetica", grid=[0, 0], align="top")
 
@@ -377,6 +384,24 @@ helppb5 = PushButton(tl_box,
 tl_combo = Combo(app,
                 options=["Time lapse is OFF", "Time lapse is ON"],
                 command=tl_func)
+
+tlstart_button = PushButton(app,
+                text="Start TL",
+                command=tl_start,
+                padx=1,
+                pady=1)
+
+tlsetup_button = PushButton(app,
+                text="Set/add time",
+                command=tl_set_time,
+                padx=1,
+                pady=1)
+
+tlstop_button = PushButton(app,
+                text="Stop TL",
+                command=tl_stop,
+                padx=1,
+                pady=1)
 
 spacer1 = Text(app, text=" ", size=14)
 
