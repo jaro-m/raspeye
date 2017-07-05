@@ -73,7 +73,7 @@ def receive_opts():
     conn = socket.socket()
     try:
         conn.connect((my_server, int(my_port)))
-    except ConnectionRefusedError as err:
+    except (ConnectionRefusedError, OSError) as err:
         tb1.set("Connection Refused!")
         return
     conn.settimeout(3)#None
@@ -108,10 +108,10 @@ def receive_opts():
     cam_opt_s = str(data_temp)[2:-1]
     cam_opt_tmp = json.loads(cam_opt_s)
     conn.close()
-    if 'tl_active' in cam_opt_tmp['running']:
-        tl_combo.set("Time lapse is ON")
-    else:
-        tl_combo.set("Time lapse is OFF")
+    # if 'tl_active' in cam_opt_tmp['running']:
+    #     tl_combo.set("Time lapse is ON")
+    # else:
+    #     tl_combo.set("Time lapse is OFF")
     if 'md_active' in cam_opt_tmp['running']:
         md_combo.set('Motion detection is ON')
     else:
@@ -164,69 +164,81 @@ def checkout():
     tb1.set(co_msg)
     return
 
-def tl_func(nm):
-
+def tl_func(nm): # obsolete
     '''deals with the time lapse
     '''
 
-    def validate_time(timestr):
-        if len(timestr) < 9:
-            return 0
-        #try:
-        date0, time0 = timestr.split(' ')
-        #print("date:", date0, "time:", time0)
-        if '/' in date0:
-            day0, month0, year0 = date0.split('/')
-        elif '-' in date0:
-            day0, month0, year0 = date0.split('-')
-        else:
-            print("date is not correct", date0, time0)
-            return 0
-        hour0, minute0 = time0.split(':')
-        #print("printing values:", year0, month0, day0, hour0, minute0)
-        year0 = int(year0)
-        month0 = int(month0)
-        day0 = int(day0)
-        hour0 = int(hour0)
-        minute0 = int(minute0)
-        thetime0 = (year0, month0, day0, hour0, minute0)
-        #print("printing as ints:", thetime0)
-        thetime = datetime.datetime(thetime0[0], thetime0[1], thetime0[2], thetime0[3], thetime0[4])
-        # except:
-        #     print("date/time conversion failure")
-        #     return 0
-        # else:
-        if thetime > datetime.datetime.today():
-            return 1
-        else:
-            print("Time cannot be set in the past")
-            return 0
-
-    camopts = {}
-    if nm == 'Time lapse is ON':
-        camopts['tl_nop'] = int(tl_nop_tb.get())
-        camopts['tl_delay'] = int(tl_delay_tb.get())
-        if validate_time(tl_time_tb.get()):
-            print("time's correct")
-            camopts['tl_starts'] = tl_time_tb.get()
-        else:
-            print("time's NOT! correct")
-        send_opts(camopts)
-        send_cmd(20)
-
-        time.sleep(1)
-        receive_opts()
-        return
+def validate_time(timestr):
+    """Simple checking whether time string can be converted
+        to datetime object.
+        input:
+            timestr = string representing date and time in format:
+                    DD/MM/YYYY HH:MM
+        output:
+            True if the string can be succesfully converted
+            False otherwise 
+    """
+    if len(timestr) < 9:
+        return 0
+    #try:
+    date0, time0 = timestr.split(' ')
+    #print("date:", date0, "time:", time0)
+    if '/' in date0:
+        day0, month0, year0 = date0.split('/')
+    elif '-' in date0:
+        day0, month0, year0 = date0.split('-')
     else:
-        camopts['tl_exit'] = 1
-        send_opts(camopts)
-        return
+        print("date is not correct", date0, time0)
+        return 0
+    hour0, minute0 = time0.split(':')
+    #print("printing values:", year0, month0, day0, hour0, minute0)
+    year0 = int(year0)
+    month0 = int(month0)
+    day0 = int(day0)
+    hour0 = int(hour0)
+    minute0 = int(minute0)
+    thetime0 = (year0, month0, day0, hour0, minute0)
+    #print("printing as ints:", thetime0)
+    thetime = datetime.datetime(thetime0[0], thetime0[1], thetime0[2], thetime0[3], thetime0[4])
+    # except:
+    #     print("date/time conversion failure")
+    #     return 0
+    # else:
+    if thetime > datetime.datetime.today():
+        return 1
+    else:
+        print("The set time has just passed. It has to point to the future.")
+        return 0
+
+
 def tl_start():
     pass
-def tl_set_time():
-    pass
+def tl_start_set():
+    """
+    """
+    camopts = {}
+    camopts['tl_nop'] = int(tl_nop_tb.get())
+    camopts['tl_delay'] = int(tl_delay_tb.get())
+    if validate_time(tl_time_tb.get()):
+        print("time's correct")
+        camopts['tl_starts'] = tl_time_tb.get()
+        camopts['tl_now'] = 0
+    else:
+        print("time's NOT! correct, time lapse will start immediately")
+        camopts['tl_now'] = 1
+        camopts['tl_starts'] = 0
+    send_opts(camopts)
+    send_cmd(20)
+
+    time.sleep(1)
+    receive_opts()
+    return
+
 def tl_stop():
-    pass
+    camopts = {}
+    camopts['tl_exit'] = 1
+    send_opts(camopts)
+    return
 
 def md_func(nm): # not tested yet
     send_cmd(10)
@@ -347,7 +359,7 @@ tl_delay_tb = TextBox(tl_box,
                 align="left")
 
 tl_time_txt = Text(tl_box,
-                text="The date and time in the forn: DD/MM/YYYY HH:MM",
+                text="The date and time in the form: DD/MM/YYYY HH:MM",
                 size=8,
                 color="blue",
                 font="Helvetica",
@@ -381,27 +393,32 @@ helppb5 = PushButton(tl_box,
                 pady=1,
                 grid=[6, 1])
 
-tl_combo = Combo(app,
-                options=["Time lapse is OFF", "Time lapse is ON"],
-                command=tl_func)
+# tl_combo = Combo(app,
+#                 options=["Time lapse is OFF", "Time lapse is ON"],
+#                 command=tl_func)
 
-tlstart_button = PushButton(app,
-                text="Start TL",
-                command=tl_start,
+tl_btn = Box(app, layout="grid")
+
+tlstart_button = PushButton(tl_btn,
+                text="Start/Set TL",
+                command=tl_start_set,
                 padx=1,
-                pady=1)
+                pady=1,
+                grid=[0, 0])
 
-tlsetup_button = PushButton(app,
-                text="Set/add time",
-                command=tl_set_time,
-                padx=1,
-                pady=1)
+# tlsetup_button = PushButton(tl_btn,
+#                 text="Set/add time",
+#                 command=tl_start_set,
+#                 padx=1,
+#                 pady=1,
+#                 grid=[0, 1])
 
-tlstop_button = PushButton(app,
+tlstop_button = PushButton(tl_btn,
                 text="Stop TL",
                 command=tl_stop,
-                padx=1,
-                pady=1)
+                padx=15,
+                pady=1,
+                grid=[0, 1])
 
 spacer1 = Text(app, text=" ", size=14)
 
