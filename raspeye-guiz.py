@@ -319,11 +319,16 @@ helppb2 = PushButton(conn_box,
                 pady=1,
                 grid=[4, 1])
 
-conn_button = PushButton(app,
+con_btn = Box(app, layout="grid")
+
+con_waffle = Waffle(con_btn, height=1, width = 1, dim=15, pad=1, color="red", dotty=True, grid=[0, 0])
+
+conn_button = PushButton(con_btn,
                 text="Check/Connect",
                 command=checkout,
                 padx=1,
-                pady=1)
+                pady=1,
+                grid=[0, 1])
 
 spacer1 = Text(app,
                 text=" ",
@@ -399,12 +404,14 @@ helppb5 = PushButton(tl_box,
 
 tl_btn = Box(app, layout="grid")
 
+tl_waffle = Waffle(tl_btn, height=1, width = 1, dim=15, pad=1, color="red", dotty=True, grid=[0, 0])
+
 tlstart_button = PushButton(tl_btn,
                 text="Start/Set TL",
                 command=tl_start_set,
                 padx=1,
                 pady=1,
-                grid=[0, 0])
+                grid=[0, 1])
 
 # tlsetup_button = PushButton(tl_btn,
 #                 text="Set/add time",
@@ -418,7 +425,7 @@ tlstop_button = PushButton(tl_btn,
                 command=tl_stop,
                 padx=15,
                 pady=1,
-                grid=[0, 1])
+                grid=[0, 2])
 
 spacer1 = Text(app, text=" ", size=14)
 
