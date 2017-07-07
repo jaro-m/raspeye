@@ -108,10 +108,10 @@ def receive_opts():
     cam_opt_s = str(data_temp)[2:-1]
     cam_opt_tmp = json.loads(cam_opt_s)
     conn.close()
-    # if 'tl_active' in cam_opt_tmp['running']:
-    #     tl_combo.set("Time lapse is ON")
-    # else:
-    #     tl_combo.set("Time lapse is OFF")
+    if 'tl_active' in cam_opt_tmp['running']:
+        tl_waffle.set_pixel(0, 0, 'green')
+    else:
+        tl_waffle.set_pixel(0, 0, 'red')
     if 'md_active' in cam_opt_tmp['running']:
         md_combo.set('Motion detection is ON')
     else:
@@ -129,18 +129,16 @@ def receive_opts():
 
 def help_port1():
     info('The address',
-        'The addres field can contain only the address of your server (you have to find out what address it is).')
+        'The addres field can contain only the IP address of your server (you have to find out what address it is).')
 def help_port2():
     info('Port',
         'The port field should contain the number, the port used by the server (you set it up starting the server)')
 def help_tl1():
     info("Number of pictures",
-        "The time lapse is just a process of taking pictures (for example up to 120 pictures)\
-        every given period of time (for example 300 seconds)")
+        "Type in the number of pictures you want to take (for example 120 pictures).")
 def help_tl2():
     info("The frequency of taking pictures",
-        "The most interesting is watching the pictures converted to a video \
-        when frames of video made up of the pictures change a lot quicker then the pictures were taken")
+        "The time between 2 consecutive pictures in seconds (for example 300).")
 
 def help_tl3():
     info("Setting up the date and time for the time lapse to start",
@@ -153,15 +151,18 @@ def checkout():
         cam_opt = receive_opts()
     except AttributeError as err:
         tb1.set(err)
+        con_waffle.set_pixel(0, 0, 'red')
         return
     co_msg = ''
     if type(cam_opt) != type({}):
         print("<checkout> function: An error occurred")
+        con_waffle.set_pixel(0, 0, 'red')
         return
     for itm in cam_opt.items():
         co_msg += str(itm)
         co_msg += '\n'
     tb1.set(co_msg)
+    con_waffle.set_pixel(0, 0, 'green')
     return
 
 def tl_func(nm): # obsolete
@@ -182,7 +183,6 @@ def validate_time(timestr):
         return 0
     #try:
     date0, time0 = timestr.split(' ')
-    #print("date:", date0, "time:", time0)
     if '/' in date0:
         day0, month0, year0 = date0.split('/')
     elif '-' in date0:
@@ -191,14 +191,12 @@ def validate_time(timestr):
         print("date is not correct", date0, time0)
         return 0
     hour0, minute0 = time0.split(':')
-    #print("printing values:", year0, month0, day0, hour0, minute0)
     year0 = int(year0)
     month0 = int(month0)
     day0 = int(day0)
     hour0 = int(hour0)
     minute0 = int(minute0)
     thetime0 = (year0, month0, day0, hour0, minute0)
-    #print("printing as ints:", thetime0)
     thetime = datetime.datetime(thetime0[0], thetime0[1], thetime0[2], thetime0[3], thetime0[4])
     # except:
     #     print("date/time conversion failure")
@@ -227,6 +225,7 @@ def tl_start_set():
         print("time's NOT! correct, time lapse will start immediately")
         camopts['tl_now'] = 1
         camopts['tl_starts'] = 0
+    tl_waffle.set_pixel(0, 0, 'green')
     send_opts(camopts)
     send_cmd(20)
 
@@ -238,9 +237,10 @@ def tl_stop():
     camopts = {}
     camopts['tl_exit'] = 1
     send_opts(camopts)
+    tl_waffle.set_pixel(0, 0, 'red')
     return
 
-def md_func(nm): # not tested yet
+def md_func(nm):
     send_cmd(10)
 
     time.sleep(1)
@@ -278,7 +278,7 @@ mytitle = Text(app, text="RaspEye", size=24, color="red", font="Helvetica", grid
 
 conn_box = Box(app, layout="grid")
 myaddress = Text(conn_box,
-                text="Type in the address of your Raspeye server",
+                text="The IP address of your Raspeye server",
                 size=8,
                 color="blue",
                 font="Helvetica",
@@ -292,7 +292,7 @@ address_tbox = TextBox(conn_box,
                 align="left")
 
 myport = Text(conn_box,
-                text="Type in the port used by your Raspeye server",
+                text="The port used by your Raspeye server",
                 size=8,
                 color="blue",
                 font="Helvetica",
@@ -337,20 +337,20 @@ spacer1 = Text(app,
 tl_box = Box(app, layout="grid")
 
 tl_nop_txt = Text(tl_box,
-                text="Type in the number of pictures you want to take",
+                text="The number of pictures",
                 size=8, color="blue",
                 font="Helvetica",
                 grid=[0, 0],
                 align="bottom")
 
 tl_nop_tb = TextBox(tl_box,
-                text="for example: 120",
+                text="120",
                 width=40,
                 grid=[1, 0],
                 align="left")
 
 tl_delay_txt = Text(tl_box,
-                text="Type in the time (in seconds) between pictures",
+                text="The time to wait before taking the next picture",
                 size=8,
                 color="blue",
                 font="Helvetica",
@@ -358,7 +358,7 @@ tl_delay_txt = Text(tl_box,
                 align="bottom")
 
 tl_delay_tb = TextBox(tl_box,
-                text="for example: 300",
+                text="300",
                 width=40,
                 grid=[4, 0],
                 align="left")
@@ -398,10 +398,6 @@ helppb5 = PushButton(tl_box,
                 pady=1,
                 grid=[6, 1])
 
-# tl_combo = Combo(app,
-#                 options=["Time lapse is OFF", "Time lapse is ON"],
-#                 command=tl_func)
-
 tl_btn = Box(app, layout="grid")
 
 tl_waffle = Waffle(tl_btn, height=1, width = 1, dim=15, pad=1, color="red", dotty=True, grid=[0, 0])
@@ -413,13 +409,6 @@ tlstart_button = PushButton(tl_btn,
                 pady=1,
                 grid=[0, 1])
 
-# tlsetup_button = PushButton(tl_btn,
-#                 text="Set/add time",
-#                 command=tl_start_set,
-#                 padx=1,
-#                 pady=1,
-#                 grid=[0, 1])
-
 tlstop_button = PushButton(tl_btn,
                 text="Stop TL",
                 command=tl_stop,
@@ -427,7 +416,7 @@ tlstop_button = PushButton(tl_btn,
                 pady=1,
                 grid=[0, 2])
 
-spacer1 = Text(app, text=" ", size=14)
+spacer1 = Text(app, text=" ", size=8)
 
 action_box = Box(app, layout="grid")
 
@@ -452,7 +441,7 @@ tb1 = Text(app,
 
 #tb2 = TextBox(tb_box)
 
-# seting up some initial values
+# setting up some initial values
 cam_opt = constants.CAM_OPT_DEFAULTS
 
 # render app window
