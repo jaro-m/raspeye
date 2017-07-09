@@ -14,7 +14,7 @@ def send_cmd(actionNo):
     conn.settimeout(3)#None
     try:
         if conn.sendall(struct.pack('<L', actionNo)) != None:
-            #print('Faild sending initiating CMD')
+            #print('Failed sending initiating CMD')
             return
     except socket.timeout as err:
         print('Socket error:', err)
@@ -157,10 +157,6 @@ def checkout():
     con_waffle.set_pixel(0, 0, 'green')
     return
 
-def tl_func(nm): # obsolete
-    '''deals with the time lapse
-    '''
-
 def validate_time(timestr):
     """Simple checking whether time string can be converted
         to datetime object.
@@ -200,9 +196,6 @@ def validate_time(timestr):
         print("The set time has just passed. It has to point to the future.")
         return 0
 
-
-def tl_start():
-    pass
 def tl_start_set():
     """
     """
@@ -439,3 +432,4 @@ cam_opt = constants.CAM_OPT_DEFAULTS
 # render app window
 app.display()
 print('Be well!')
+
