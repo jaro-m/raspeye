@@ -47,18 +47,11 @@ def send_opts(camopts):
     flen = struct.pack('<L', flsize)
     if conn.sendall(flen) != None:
         print('Some initial sending failure')
-        #connection = False
         return
-    #else:
-    #    print('Sent', flsize)
-    #print('Size sent')
-    #time.sleep(1)
     bytes_sent = conn.sendall(optstr)
     if bytes_sent != None:
         print('Sending CAM_OPT failure, bytes sent:', bytes_sent)
-        #connection = False
         return
-    #print('All OK!')
     conn.close()
 
 def receive_opts():
@@ -67,7 +60,6 @@ def receive_opts():
         No input
         output: dictionary
     '''
-    #global cam_opt
     my_server = address_tbox.get()
     my_port = port_tbox.get()
     conn = socket.socket()
@@ -150,7 +142,7 @@ def checkout():
     try:
         cam_opt = receive_opts()
     except AttributeError as err:
-        tb1.set(err)
+        #tb1.set(err)
         con_waffle.set_pixel(0, 0, 'red')
         return
     co_msg = ''
@@ -158,10 +150,10 @@ def checkout():
         print("<checkout> function: An error occurred")
         con_waffle.set_pixel(0, 0, 'red')
         return
-    for itm in cam_opt.items():
-        co_msg += str(itm)
-        co_msg += '\n'
-    tb1.set(co_msg)
+    # for itm in cam_opt.items():
+    #     co_msg += str(itm)
+    #     co_msg += '\n'
+    # tb1.set(co_msg)
     con_waffle.set_pixel(0, 0, 'green')
     return
 
@@ -256,7 +248,7 @@ def pr_func(nm):
             prv_thr = threading.Thread(target=raspeye_preview.start, args=(my_server, my_port, cam_opt))
             prv_thr.start()
         else:
-            tb1.set('Preview is running!')
+            #tb1.set('Preview is running!')
             return
     else:
         if 'pr_active' in cam_opt['running']:
@@ -268,11 +260,11 @@ def pr_func(nm):
 
 
 # Window setup
-address_box_text = "192.168.0.26" # ;)
-port_box_text = "18767"
+address_box_text = "192.168.1.15" # ;)
+port_box_text = "19876"
 time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
 
-app = App(layout='auto', width='480', height='680', title="Raspeye client")
+app = App(layout='auto', width='480', height='384', title="Raspeye client")
 
 mytitle = Text(app, text="RaspEye", size=24, color="red", font="Helvetica", grid=[0, 0], align="top")
 
@@ -430,16 +422,16 @@ md_combo = Combo(action_box,
                 command=md_func,
                 grid=[0, 2])
 
-tb_box = Box(app, layout="grid")
-#tb0 = TextBox(tb_box) # just testing
-tb1 = Text(app,
-            text="",
-            size="8",
-            color="blue",
-            font="Helvetica",
-            align="left")
-
-#tb2 = TextBox(tb_box)
+# tb_box = Box(app, layout="grid")
+# tb0 = TextBox(tb_box) # just testing
+# tb1 = Text(app,
+#             text="",
+#             size="8",
+#             color="blue",
+#             font="Helvetica",
+#             align="left")
+#
+# tb2 = TextBox(tb_box)
 
 # setting up some initial values
 cam_opt = constants.CAM_OPT_DEFAULTS
