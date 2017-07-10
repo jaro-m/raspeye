@@ -10,8 +10,8 @@ def send_cmd(actionNo):
     my_server = address_tbox.get()
     my_port = port_tbox.get()
     conn = socket.socket()
-    conn.connect((my_server, int(my_port)))
     conn.settimeout(3)#None
+    conn.connect((my_server, int(my_port)))
     try:
         if conn.sendall(struct.pack('<L', actionNo)) != None:
             #print('Failed sending initiating CMD')
@@ -30,8 +30,14 @@ def send_opts(camopts):
     my_server = address_tbox.get()
     my_port = port_tbox.get()
     conn = socket.socket()
-    conn.connect((my_server, int(my_port)))
     conn.settimeout(3)#None
+    try:
+        conn.connect((my_server, int(my_port)))
+    except OSError as err:
+        print("Connection error: {}".format(err))
+        con_waffle.set_pixel(0, 0, 'red')
+        conn.close()
+        return
 
     cam_opt_s = json.dumps(camopts)
     optstr = cam_opt_s.encode(encoding='UTF-8')
@@ -63,12 +69,13 @@ def receive_opts():
     my_server = address_tbox.get()
     my_port = port_tbox.get()
     conn = socket.socket()
+    conn.settimeout(3)#None
     try:
         conn.connect((my_server, int(my_port)))
     except (ConnectionRefusedError, OSError) as err:
-        tb1.set("Connection Refused!")
+        con_waffle.set_pixel(0, 0, 'red')
+        print("No connection, error: {}".format(err))
         return
-    conn.settimeout(3)#None
     try:
         if conn.sendall(struct.pack('<L', 50)) != None:
             #print('Faild sending initiating CMD')
@@ -234,6 +241,8 @@ def md_func(nm):
 
 def pr_func(nm):
     cam_opt = receive_opts()
+    if not isinstance(cam_opt, dict):
+        return
     if nm == "Preview is ON":
         if 'pr_active' not in cam_opt['running']:
             my_server = address_tbox.get()
