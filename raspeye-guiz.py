@@ -74,6 +74,9 @@ def receive_opts():
         conn.connect((my_server, int(my_port)))
     except (ConnectionRefusedError, OSError) as err:
         con_waffle.set_pixel(0, 0, 'red')
+        tl_waffle.set_pixel(0, 0, 'red')
+        md_combo.set('Motion detection is OFF')
+        pr_combo.set('Preview is OFF')
         print("No connection, error: {}".format(err))
         return
     try:
