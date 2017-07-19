@@ -11,8 +11,8 @@ def send_cmd(actionNo):
     my_port = port_tbox.get()
     conn = socket.socket()
     conn.settimeout(3)#None
-    conn.connect((my_server, int(my_port)))
     try:
+        conn.connect((my_server, int(my_port)))
         if conn.sendall(struct.pack('<L', actionNo)) != None:
             #print('Failed sending initiating CMD')
             return
@@ -210,8 +210,18 @@ def tl_start_set():
     """
     """
     camopts = {}
-    camopts['tl_nop'] = int(tl_nop_tb.get())
-    camopts['tl_delay'] = int(tl_delay_tb.get())
+    try:
+        nop = int(tl_nop_tb.get())
+        delay = int(tl_delay_tb.get())
+    except ValueError as err:
+        nop = constants.CAM_OPT_DEFAULTS['tl_nop']
+        delay = constants.CAM_OPT_DEFAULTS['tl_delay']
+    if nop < 1:
+        nop = constants.CAM_OPT_DEFAULTS['tl_nop']
+    if delay < 1:
+        delay = constants.CAM_OPT_DEFAULTS['tl_delay']
+    camopts['tl_nop'] = nop
+    camopts['tl_delay'] = delay
     if validate_time(tl_time_tb.get()):
         print("time's correct")
         camopts['tl_starts'] = tl_time_tb.get()
