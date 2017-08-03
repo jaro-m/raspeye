@@ -273,13 +273,21 @@ def pr_func(nm):
     receive_opts()
     return
 
+def srv_exit():
+    send_cmd(0)
+
 
 # Window setup
+
 address_box_text = "192.168.1.15" # ;)
 port_box_text = "19876"
 time_now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
 
 app = App(layout='auto', width='480', height='384', title="Raspeye client")
+
+menubar = MenuBar(app,
+                  toplevel=["Advanced Options"],
+                  options=[[["Stop server", srv_exit]]])
 
 mytitle = Text(app, text="RaspEye", size=24, color="red", font="Helvetica", grid=[0, 0], align="top")
 
