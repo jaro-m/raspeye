@@ -18,7 +18,6 @@ def send_cmd(actionNo):
             return
     except socket.timeout as err:
         print('Socket error:', err)
-        pass
     conn.close()
     return
 
@@ -107,9 +106,10 @@ def receive_opts():
         except socket.timeout as err:
             #print("CAM_OPT hasn't been received. Socket error:", err)
             return
-    cam_opt_s = str(data_temp)[2:-1]
+    cam_opt_s = data_temp.decode()
     cam_opt_tmp = json.loads(cam_opt_s)
     conn.close()
+
     if 'tl_active' in cam_opt_tmp['running']:
         tl_waffle.set_pixel(0, 0, 'green')
     else:
@@ -152,7 +152,6 @@ def checkout():
     try:
         cam_opt = receive_opts()
     except AttributeError as err:
-        #tb1.set(err)
         con_waffle.set_pixel(0, 0, 'red')
         return
     co_msg = ''
@@ -160,10 +159,6 @@ def checkout():
         print("<checkout> function: An error occurred")
         con_waffle.set_pixel(0, 0, 'red')
         return
-    # for itm in cam_opt.items():
-    #     co_msg += str(itm)
-    #     co_msg += '\n'
-    # tb1.set(co_msg)
     con_waffle.set_pixel(0, 0, 'green')
     return
 
@@ -274,6 +269,11 @@ def pr_func(nm):
     return
 
 def srv_exit():
+    try:
+        cam_opt = receive_opts()
+    except AttributeError as err:
+        con_waffle.set_pixel(0, 0, 'red')
+        return
     send_cmd(0)
 
 
